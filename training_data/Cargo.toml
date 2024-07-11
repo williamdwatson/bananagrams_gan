@@ -1,0 +1,14 @@
+[package]
+name = "training_data"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.5"
+trie-rs = "0.4.2"
+
+[profile.dev]
+opt-level = 3
+lto = true
