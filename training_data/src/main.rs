@@ -860,7 +860,7 @@ fn main() {
                 None => {/* Continue without incrementing since we failed to make a board */}
             }
         }
-        fs::write(format!("C:/Users/willd/Documents/Bananagrams/bananagrams_gan/training_data/data/{}_board4.bgb", thread_num), all_board_bytes).expect("Failed to write board data!");
+        fs::write(format!("data/{}_board4.bgb", thread_num), all_board_bytes).expect("Failed to write board data!");
     });
     
     // let letters = "EEEHILNNOOOQSTTTTUUWZ"; //"AAAACDEGIILLLNNNNNOSTTTUUVVWYZ"; //"CEEHHKLMMNOOOOSSTUVXZ"; //"CCEEEGHIIINNOOPRRSSSSSTTTTTWX"; //"CCEEEGHIIINNOOPRRSSTTTTWX";
