@@ -2,6 +2,7 @@ use std::{cmp, f32::consts::E, fmt, fs, thread};
 use hashbrown::HashSet;     // For faster default hash (ahash)
 use rand::prelude::*;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
 /// A numeric representation of a word
 type Word = Vec<usize>;
@@ -841,11 +842,14 @@ fn main() {
         },
         _ => {}
     }
-    const NUMBER_OF_BOARDS_TO_GENERATE: usize = 500;
-    (0..default_parallelism_approx).into_par_iter().for_each(|thread_num| {
+    const NUMBER_OF_BOARDS_TO_GENERATE: usize = 1500;
+    let m = MultiProgress::new();
+    let pbars: Vec<(usize, ProgressBar)> = (0..default_parallelism_approx).into_iter().map(|i| (i, m.add(ProgressBar::new(NUMBER_OF_BOARDS_TO_GENERATE as u64).with_prefix(format!("Thread {}", i+1))))).collect();
+    pbars.into_par_iter().for_each(|(thread_num, pbar)| {
         let mut rng = thread_rng();
         let mut boards_generated: usize = 0;
         let mut all_board_bytes: Vec<u8> = Vec::new();
+        pbar.set_style(ProgressStyle::with_template("{elapsed_precise} {wide_bar} {pos}/{len} [{eta_precise} left ({per_sec})]").expect("Invalid template!"));
         while boards_generated < NUMBER_OF_BOARDS_TO_GENERATE {
             let letters = generate_hand(&mut rng);
             let res = play_bananagrams(letters, &dictionary);
@@ -853,14 +857,16 @@ fn main() {
                 Some(result) => {
                     all_board_bytes.extend(board_to_bytes(&result.0, result.1, result.2, result.3, result.4));
                     boards_generated += 1;
-                    if boards_generated % 50 == 0 {
-                        println!("Thread {} has generated {}", thread_num, boards_generated);
-                    }
+                    pbar.inc(1);
+                    // if boards_generated % 50 == 0 {
+                    //     println!("Thread {} has generated {}", thread_num, boards_generated);
+                    // }
                 },
                 None => {/* Continue without incrementing since we failed to make a board */}
             }
         }
-        fs::write(format!("data/{}_board4.bgb", thread_num), all_board_bytes).expect("Failed to write board data!");
+        fs::write(format!("data/{}_board5.bgb", thread_num), all_board_bytes).expect("Failed to write board data!");
+        pbar.finish_with_message(format!("Thread {} done!", thread_num+1));
     });
     
     // let letters = "EEEHILNNOOOQSTTTTUUWZ"; //"AAAACDEGIILLLNNNNNOSTTTUUVVWYZ"; //"CEEHHKLMMNOOOOSSTUVXZ"; //"CCEEEGHIIINNOOPRRSSSSSTTTTTWX"; //"CCEEEGHIIINNOOPRRSSTTTTWX";
