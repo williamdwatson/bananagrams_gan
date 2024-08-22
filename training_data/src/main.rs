@@ -977,7 +977,7 @@ fn main() {
                 None => {/* Continue without incrementing since we failed to make a board */}
             }
         }
-        fs::write(format!("new_data/{}_board1.bgb", thread_num), all_board_bytes).expect("Failed to write board data!");
+        fs::write(format!("data/{}_board5.bgb", thread_num), all_board_bytes).expect("Failed to write board data!");
         pbar.finish_with_message(format!("Thread {} done!", thread_num+1));
     });
     
